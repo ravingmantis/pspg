@@ -1,0 +1,6 @@
+/*.Rcheck
+/*.Rhistory
+/*.Rprofile
+/*_*.tar.gz
+/docs
+/vignettes/*.html

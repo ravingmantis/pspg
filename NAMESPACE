@@ -1,0 +1,6 @@
+export("pspg")
+
+S3method(pspg, data.frame)
+S3method(pspg, list)
+S3method(pspg, default)
+

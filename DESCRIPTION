@@ -1,0 +1,17 @@
+Encoding: UTF-8
+Package: pspg
+Type: Package
+Title: Postgres Pager for R
+Version: 0.1-0-999
+Date: 2025-10-30
+Authors@R:
+    c(person('Jamie','Lentin',email='lentinj@shuttlethread.com',role=c('aut','cre')))
+Description:
+    Uses Postgres Pager <https://github.com/okbob/pspg> to display R data structures.
+License: GPL (>= 3)
+Depends: R (>= 4.0.0)
+Suggests:
+    unittest
+SystemRequirements:
+    pspg: pspg (rpm) or pspg (deb) or pspg (brew)
+BugReports: https://github.com/ravingmantis/pspg/issues
