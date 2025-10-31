@@ -4,6 +4,12 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
   if (getOption("pspg.args.ignore-case", default = TRUE)) {
     args[["ignore-case"]] <- TRUE
   }
+  if (getOption("pspg.args.no-topbar", default = TRUE)) {
+    args[["no-topbar"]] <- TRUE
+  }
+  if (getOption("pspg.args.no-commandbar", default = FALSE)) {
+    args[["no-commandbar"]] <- TRUE
+  }
   if (isTRUE(row.names)) {
     args[["freezecols"]] <- "1"
   }
