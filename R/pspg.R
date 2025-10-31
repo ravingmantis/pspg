@@ -5,9 +5,9 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
     args[["ignore-case"]] <- TRUE
   }
   if (isTRUE(row.names)) {
-    args[["freezecols"]] <- "0"
+    args[["freezecols"]] <- "1"
   }
-  if (isTRUE(col.names)) {
+  if (isTRUE(col.names) || is.na(col.names)) {
     args[["csv-header"]] <- "on"
   }
 
@@ -26,11 +26,16 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
   tmp_path <- tempfile(pattern = "pspg", fileext = ".csv")
   # TODO: Handling of row.names / col.names is wrong, read ?write.csv more closely
   # TODO: significant figures option somewhere
-  utils::write.csv(
+  utils::write.table(
     tbl,
     file = tmp_path,
     row.names = row.names,
-    col.names = col.names
+    col.names = col.names,
+    fileEncoding = "UTF-8",
+    # Defaults from write.csv
+    sep = ",",
+    dec = ".",
+    qmethod = "double"
   )
   on.exit(unlink(tmp_path), add = TRUE)
   # TODO: Fall over if pspg isn't available, with a friendly message
@@ -41,28 +46,28 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
 pspg.data.frame <- function(x, ...) {
   tbl <- x
   # TODO: Toggle row.names / col.names based on content
-  pspg_call(tbl, args = list(...), row.names = FALSE, col.names = TRUE)
+  pspg_call(tbl, args = list(...), row.names = TRUE, col.names = NA)
   return(invisible(tbl))
 }
 
 pspg.list <- function(x, ...) {
   tbl <- data.frame(
-    key = names(x),
     # TODO: Spread values out along columns
-    value = vapply(
+    V1 = vapply(
       x,
       function(v) paste(as.character(v), collapse = ", "),
       character(1)
     ),
     stringsAsFactors = FALSE
   )
+  rownames(tbl) <- names(x)
   pspg_call(tbl, args = list(...), row.names = TRUE, col.names = FALSE)
   return(invisible(tbl))
 }
 
 pspg.default <- function(x, ...) {
   # TODO: Would as.data.frame.table() be more sensible in some cases?
-  tbl <- as.data.frame(x)
-  pspg_call(tbl, args = list(...))
+  tbl <- as.data.frame(drop(x))
+  pspg_call(tbl, args = list(...), row.names = TRUE, col.names = NA)
   return(invisible(tbl))
 }

@@ -27,9 +27,12 @@
 \examples{
 if (interactive()) {
   # View a data.frame
-  pspg(data.frame(a=1:10, b=2:11 * 20))
+  pspg(expand.grid(a=1:10 * 10, b = 2:20 * 100))
 
   # View a list
-  pspg(list(a=1:1000))
+  pspg(list(a=1:1000,b=2))
+
+  # View an array
+  pspg(array(1, dim = c(10, 10), dimnames = list(paste0("y", 1:10), paste0("x", 1:10))))
 }
 }
