@@ -83,8 +83,17 @@ pspg.list <- function(x, ...) {
 }
 
 pspg.default <- function(x, ...) {
-  # TODO: Would as.data.frame.table() be more sensible in some cases?
-  tbl <- as.data.frame(drop(x))
+  # Get unparsed x, but only if it was a single variable (to keep columns short)
+  in_var <- sys.call(-1)[[2]]
+  in_var <- if (is.symbol(in_var)) as.character(in_var) else "value"
+
+  x <- drop(x)
+  if (length(dim(x)) > 2) {
+    tbl <- as.data.frame.table(x, responseName = in_var)
+  } else {
+    tbl <- as.data.frame(x, optional = TRUE)
+  }
+
   pspg_call(tbl, args = list(...), row.names = TRUE, col.names = NA)
   return(invisible(tbl))
 }
