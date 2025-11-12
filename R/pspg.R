@@ -1,6 +1,6 @@
 pspg <- function(x, ...) UseMethod("pspg")
 
-pspg_call <- function(tbl, args) {
+pspg_call <- function(tbl, args, fixed_cols = NULL) {
   # Parse any pspg.args.* as a pspg command-line option
   opts <- .Options
   args <- opts[grep("^pspg\\.args\\.", names(opts))]
@@ -12,15 +12,16 @@ pspg_call <- function(tbl, args) {
     args[["no-topbar"]] <- TRUE
   }
 
-  if (!is.null(rownames(tbl))) {
-    # NB: This is always true, but checking for symmetry
-    args[["freezecols"]] <- "1"
+  args[["freezecols"]] <- if (is.null(fixed_cols)) {
+    "1"
+  } else {
+    as.character(fixed_cols)
   }
   if (!is.null(colnames(tbl))) {
     args[["csv-header"]] <- "on"
   }
 
-  arg_strings <- vapply(
+  arg_strings <- unlist(lapply(
     unique(names(args)),
     function(n) {
       v <- args[[n]]
@@ -28,9 +29,8 @@ pspg_call <- function(tbl, args) {
         return(paste0("--", n))
       }
       return(paste0("--", n, "=", v))
-    },
-    character(1)
-  )
+    }
+  ))
 
   # TODO: significant figures option somewhere
   tmp_path <- tempfile(pattern = "pspg", fileext = ".csv")
@@ -38,8 +38,17 @@ pspg_call <- function(tbl, args) {
   utils::write.table(
     tbl,
     file = tmp_path,
-    row.names = !is.null(rownames(tbl)),
-    col.names = if (is.null(colnames(tbl))) FALSE else NA, # NA means include blank corner-cell
+    row.names = is.null(fixed_cols), # null fixed_cols --> show rownames column
+    col.names = if (is.null(colnames(tbl))) {
+      # No colnames, so don't include any header row
+      FALSE
+    } else if (is.null(fixed_cols)) {
+      # NA means include blank corner-cell for the rownames column
+      NA
+    } else {
+      # Include column name row
+      TRUE
+    },
     fileEncoding = "UTF-8",
     # Defaults from write.csv
     sep = ",",
@@ -88,13 +97,16 @@ pspg.default <- function(x, ...) {
   in_var <- sys.call(-1)[[2]]
   in_var <- if (is.symbol(in_var)) as.character(in_var) else "value"
 
+  fixed_cols <- NULL
+
   x <- drop(x)
   if (length(dim(x)) > 2) {
     tbl <- as.data.frame.table(x, responseName = in_var)
+    fixed_cols <- seq_along(dim(x))
   } else {
     tbl <- as.data.frame(x, optional = TRUE)
   }
 
-  pspg_call(tbl, args = list(...))
+  pspg_call(tbl, args = list(...), fixed_cols = fixed_cols)
   return(invisible(tbl))
 }
