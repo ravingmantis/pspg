@@ -1,6 +1,6 @@
 pspg <- function(x, ...) UseMethod("pspg")
 
-pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
+pspg_call <- function(tbl, args) {
   # Parse any pspg.args.* as a pspg command-line option
   opts <- .Options
   args <- opts[grep("^pspg\\.args\\.", names(opts))]
@@ -12,10 +12,11 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
     args[["no-topbar"]] <- TRUE
   }
 
-  if (isTRUE(row.names)) {
+  if (!is.null(rownames(tbl))) {
+    # NB: This is always true, but checking for symmetry
     args[["freezecols"]] <- "1"
   }
-  if (isTRUE(col.names) || is.na(col.names)) {
+  if (!is.null(colnames(tbl))) {
     args[["csv-header"]] <- "on"
   }
 
@@ -37,8 +38,8 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
   utils::write.table(
     tbl,
     file = tmp_path,
-    row.names = row.names,
-    col.names = col.names,
+    row.names = !is.null(rownames(tbl)),
+    col.names = if (is.null(colnames(tbl))) FALSE else NA, # NA means include blank corner-cell
     fileEncoding = "UTF-8",
     # Defaults from write.csv
     sep = ",",
@@ -62,8 +63,7 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
 
 pspg.data.frame <- function(x, ...) {
   tbl <- x
-  # TODO: Toggle row.names / col.names based on content
-  pspg_call(tbl, args = list(...), row.names = TRUE, col.names = NA)
+  pspg_call(tbl, args = list(...))
   return(invisible(tbl))
 }
 
@@ -78,7 +78,8 @@ pspg.list <- function(x, ...) {
     stringsAsFactors = FALSE
   )
   rownames(tbl) <- names(x)
-  pspg_call(tbl, args = list(...), row.names = TRUE, col.names = FALSE)
+  colnames(tbl) <- NULL
+  pspg_call(tbl, args = list(...))
   return(invisible(tbl))
 }
 
@@ -94,6 +95,6 @@ pspg.default <- function(x, ...) {
     tbl <- as.data.frame(x, optional = TRUE)
   }
 
-  pspg_call(tbl, args = list(...), row.names = TRUE, col.names = NA)
+  pspg_call(tbl, args = list(...))
   return(invisible(tbl))
 }
