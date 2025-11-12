@@ -73,7 +73,7 @@ pspg_call <- function(tbl, args, fixed_cols = NULL) {
 pspg.data.frame <- function(x, ...) {
   tbl <- x
   pspg_call(tbl, args = list(...))
-  return(invisible(tbl))
+  return(invisible(x))
 }
 
 pspg.list <- function(x, ...) {
@@ -89,7 +89,7 @@ pspg.list <- function(x, ...) {
   rownames(tbl) <- names(x)
   colnames(tbl) <- NULL
   pspg_call(tbl, args = list(...))
-  return(invisible(tbl))
+  return(invisible(x))
 }
 
 pspg.default <- function(x, ...) {
@@ -99,14 +99,14 @@ pspg.default <- function(x, ...) {
 
   fixed_cols <- NULL
 
-  x <- drop(x)
-  if (length(dim(x)) > 2) {
-    tbl <- as.data.frame.table(x, responseName = in_var)
-    fixed_cols <- seq_along(dim(x))
+  x_dropped <- drop(x)
+  if (length(dim(x_dropped)) > 2) {
+    tbl <- as.data.frame.table(x_dropped, responseName = in_var)
+    fixed_cols <- seq_along(dim(x_dropped))
   } else {
-    tbl <- as.data.frame(x, optional = TRUE)
+    tbl <- as.data.frame(x_dropped, optional = TRUE)
   }
 
   pspg_call(tbl, args = list(...), fixed_cols = fixed_cols)
-  return(invisible(tbl))
+  return(invisible(x))
 }
