@@ -25,10 +25,17 @@ Then you can install the package using [remotes](https://github.com/r-lib/remote
 Use the ``pspg`` generic to view a data structure:
 
 ```r
-pspg(my_data_frame)
+# View a data.frame
+pspg(expand.grid(a=1:10 * 10, b = 2:20 * 100))
+
+# View a list
+pspg(list(a=1:10,b=2))
+
+# View an array
+pspg(array(1, dim = c(10, 10), dimnames = list(paste0("y", 1:10), paste0("x", 1:10))))
 ```
 
-It returns the input by default, so it can be passed into a pipeline:
+It returns the input, so a pspg step can be included in a pipeline:
 
 ```r
 do_a_thing() |> pspg() |> do_something_else()
