@@ -1,15 +1,17 @@
 pspg <- function(x, ...) UseMethod("pspg")
 
 pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
+  # Parse any pspg.args.* as a pspg command-line option
+  opts <- .Options
+  args <- opts[grep("^pspg\\.args\\.", names(opts))]
+
   if (getOption("pspg.args.ignore-case", default = TRUE)) {
     args[["ignore-case"]] <- TRUE
   }
   if (getOption("pspg.args.no-topbar", default = TRUE)) {
     args[["no-topbar"]] <- TRUE
   }
-  if (getOption("pspg.args.no-commandbar", default = FALSE)) {
-    args[["no-commandbar"]] <- TRUE
-  }
+
   if (isTRUE(row.names)) {
     args[["freezecols"]] <- "1"
   }
