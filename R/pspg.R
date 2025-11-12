@@ -46,8 +46,17 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
     qmethod = "double"
   )
   on.exit(unlink(tmp_path), add = TRUE)
-  # TODO: Fall over if pspg isn't available, with a friendly message
-  system2(c(Sys.which("pspg"), "--csv", arg_strings, tmp_path))
+  pspg_path <- Sys.which("pspg")
+  if (!nzchar(pspg_path)) {
+    stop(paste(
+      "pspg isn't available on your system. Install it with the relevant command, e.g:",
+      "    * apt install pspg",
+      "    * dnf install pspg",
+      "    * brew install pspg",
+      sep = "\n"
+    ))
+  }
+  system2(c(pspg_path, "--csv", arg_strings, tmp_path))
   cat("\n\n")
 }
 
