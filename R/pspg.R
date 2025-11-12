@@ -31,9 +31,9 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
     character(1)
   )
 
-  tmp_path <- tempfile(pattern = "pspg", fileext = ".csv")
-  # TODO: Handling of row.names / col.names is wrong, read ?write.csv more closely
   # TODO: significant figures option somewhere
+  tmp_path <- tempfile(pattern = "pspg", fileext = ".csv")
+  on.exit(unlink(tmp_path), add = TRUE)
   utils::write.table(
     tbl,
     file = tmp_path,
@@ -45,7 +45,7 @@ pspg_call <- function(tbl, args, row.names = FALSE, col.names = TRUE) {
     dec = ".",
     qmethod = "double"
   )
-  on.exit(unlink(tmp_path), add = TRUE)
+
   pspg_path <- Sys.which("pspg")
   if (!nzchar(pspg_path)) {
     stop(paste(
