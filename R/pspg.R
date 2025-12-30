@@ -56,7 +56,7 @@ pspg_call <- function(tbl, args, fixed_cols = NULL) {
     qmethod = "double"
   )
 
-  pspg_path <- Sys.which("pspg")
+  pspg_path <- getOption("pspg.binary", Sys.which("pspg"))
   if (!nzchar(pspg_path)) {
     stop(paste(
       "pspg isn't available on your system. Install it with the relevant command, e.g:",
@@ -66,7 +66,7 @@ pspg_call <- function(tbl, args, fixed_cols = NULL) {
       sep = "\n"
     ))
   }
-  system2(c(pspg_path, "--csv", arg_strings, tmp_path))
+  system2(c(pspg_path, tmp_path, "--csv", arg_strings))
   cat("\n\n")
 }
 
